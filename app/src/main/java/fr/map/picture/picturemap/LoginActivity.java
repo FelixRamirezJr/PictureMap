@@ -110,6 +110,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        // Check if the user is logged in then just load the Map
+        if( Session.getUserLoggedInStatus(getApplicationContext())){
+            Intent i = new Intent(getApplicationContext(), MapsActivity.class);
+            startActivity(i);
+            return;
+        }
+
     }
 
     private void populateAutoComplete() {
@@ -217,6 +225,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(true);
             final Context c = getBaseContext();
             Toast.makeText(c, "About to make the request...", Toast.LENGTH_LONG).show();
+            final String finalEmail = email;
             final JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
             (Request.Method.POST, login_url, data, new Response.Listener<JSONObject>() {
                 @Override
@@ -225,6 +234,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     try {
                         boolean successfulLogin = response.getBoolean("success");
                         if(successfulLogin){
+                            Session.setLoggedInUserEmail(getApplicationContext(), finalEmail);
+                            Session.setUserLoggedInStatus(getApplicationContext(),true);
                             Intent i = new Intent(getApplicationContext(), MapsActivity.class);
                             startActivity(i);
                             Toast.makeText(getApplicationContext(), "Successful login", Toast.LENGTH_LONG).show();
